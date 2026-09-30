@@ -1,7 +1,9 @@
 library(nortest)
 library(goftest)
 library(rcompanion)
+
 df <- read.csv2("var_15.csv")
+df <- df[, -1]
 
 #3
 names(df)[names(df) == "Average.income"] <- "Average income"
@@ -90,3 +92,15 @@ print(pearson.test(df$"Average income"))
 print(ad.test(df$"Average income"))
 print(shapiro.test(df$"Average income"))
 plotNormalHistogram(df$"Average income", xlab="Средний доход", ylab="Количество наблюдений", length = 1000, breaks = seq(min(df$"Average income"), max(df$"Average income"),length.out = 7))
+
+#7.2
+M <- df[,unlist(lapply(df, is.numeric))]
+N1<-cor(M, use="pairwise.complete.obs",method="pearson")
+N2<-cor(M, use="pairwise.complete.obs",method="spearman")
+N3<-cor(M, use="pairwise.complete.obs",method="kendall")
+View(N1)
+View(N2)
+View(N3)
+
+#7.3
+print(cor.test(df$"Work experience",df$"Average number of pages", method="pearson"))
