@@ -25,13 +25,30 @@ print(summary(df))
 
 
 #6
-par(mfrow = c(2, 2))
 #6.1
-plot(df$"Work experience", df$"Average income",main = "Диаграмма рассеяния", xlab = "Work experience", ylab = "Average income", pch = 11)
+dev.new()
+plot(df$"Work experience", df$"Average income",main = "Диаграмма рассеяния", xlab = "Стаж работы", ylab = "Средний доход", pch = 11)
 
 #6.2
+dev.new()
 x <- c(summary(df$"Professional specialization"))
 piepercent <- round(100*x/sum(x), 1)
-pie(x,piepercent,main="Professional specialization", col=c("red", "blue","green","yellow"),clockwise=TRUE)
-legend("topright", c("1","2","3","4"), fill =c("red", "blue","green","yellow"))
+pie(x,piepercent,main="Профессиональная специализация", col=c("red", "blue","green","yellow"),clockwise=TRUE)
+legend("topright", c("Не использую","Крайне редко","Ежедневно,","Постоянно"), fill =c("red", "blue","green","yellow"))
+
 #6.3
+dev.new()
+par(mfrow = c(2, 2))
+x <- c(df$"Activity level (level)"[(df$"Gender"=="1")&(df$"Group"=="1")])
+piepercent <- round(100*x/sum(x), 1)
+pie(x,piepercent,main="Мужчины первой группы", col=c("red", "blue","green","yellow"),clockwise=TRUE)
+legend("topright", c("Не использую","Крайне редко","Ежедневно,","Постоянно"), fill =c("red", "blue","green","yellow"))
+
+
+#6.4
+dev.new()
+par(mfrow = c(2, 2))
+barplot(table(df$"Activity level (score)"[(df$"Gender"=="1")&(df$"Group"=="1")]),col=c("red"),main="Мужчины первой группы",xlab="Степень активности", ylab="Количество наблюдений")
+barplot(table(df$"Activity level (score)"[(df$"Gender"=="1")&(df$"Group"=="2")]),col=c("blue"),main="Мужчины второй группы",xlab="Степень активности", ylab="Количество наблюдений")
+barplot(table(df$"Activity level (score)"[(df$"Gender"=="2")&(df$"Group"=="1")]),col=c("green"),main="Женщины первой группы",xlab="Степень активности", ylab="Количество наблюдений")
+barplot(table(df$"Activity level (score)"[(df$"Gender"=="2")&(df$"Group"=="2")]),col=c("yellow"),main="Женщины второй группы",xlab="Степень активности", ylab="Количество наблюдений")
