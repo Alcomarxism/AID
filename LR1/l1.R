@@ -1,5 +1,7 @@
+library(nortest)
+library(goftest)
+library(rcompanion)
 df <- read.csv2("var_15.csv")
-
 
 #3
 names(df)[names(df) == "Average.income"] <- "Average income"
@@ -82,3 +84,9 @@ hist(df$"Activity level (score)", freq=FALSE, breaks=12,xlabel="Степень �
 dev.new()
 pairs(~df$"Age"+df$"Work experience"+df$"Average income"+df$"Average number of pages"+df$"Activity level (score)",data=df,main="Матричный график", col="red")
 
+#7
+#7.1
+print(pearson.test(df$"Average income"))
+print(ad.test(df$"Average income"))
+print(shapiro.test(df$"Average income"))
+plotNormalHistogram(df$"Average income", xlab="Средний доход", ylab="Количество наблюдений", length = 1000, breaks = seq(min(df$"Average income"), max(df$"Average income"),length.out = 7))
