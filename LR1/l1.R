@@ -1,6 +1,8 @@
 library(nortest)
 library(goftest)
 library(rcompanion)
+library(ppcor)
+library(corrplot)
 
 df <- read.csv2("var_15.csv")
 df <- df[, -1]
@@ -104,3 +106,19 @@ View(N3)
 
 #7.3
 print(cor.test(df$"Work experience",df$"Average number of pages", method="pearson"))
+
+#7.4
+C1<-pcor(M)
+View(C1$estimate)
+View(C1$p.value)
+C2<-pcor(M, method="spearman")
+C3<-pcor(M, method="kendall")
+
+#7.5
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD",
+"#4477AA"))
+corrplot(N1, method="color", col=NULL,type="upper", order="hclust",
+addCoef.col = "black", tl.col="black", tl.srt=45,
+sig.level = 0.01, insig = "blank",
+diag=FALSE
+)
