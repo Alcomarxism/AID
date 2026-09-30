@@ -19,6 +19,7 @@ df$"Professional specialization" <- as.factor(df$"Professional specialization")
 df$"Average number of pages" <- as.integer(df$"Average number of pages")
 df$"Activity level (score)" <- as.integer(df$"Activity level (score)")
 df$"Activity level (level)" <- as.factor(df$"Activity level (level)")
+print(str(df))
 
 #5
 print(summary(df))
@@ -39,11 +40,22 @@ legend("topright", c("Не использую","Крайне редко","Еже
 #6.3
 dev.new()
 par(mfrow = c(2, 2))
-x <- c(df$"Activity level (level)"[(df$"Gender"=="1")&(df$"Group"=="1")])
+x <- table(df$"Activity level (level)"[(df$"Gender"=="1")&(df$"Group"=="1")])
 piepercent <- round(100*x/sum(x), 1)
-pie(x,piepercent,main="Мужчины первой группы", col=c("red", "blue","green","yellow"),clockwise=TRUE)
-legend("topright", c("Не использую","Крайне редко","Ежедневно,","Постоянно"), fill =c("red", "blue","green","yellow"))
-
+pie(x,piepercent,main="Мужчины первой группы", col=c("red", "blue","green"),clockwise=TRUE)
+legend("topright", c("High","Low","Medium"), fill =c("red", "blue","green"))
+x <- table(df$"Activity level (level)"[(df$"Gender"=="1")&(df$"Group"=="2")])
+piepercent <- round(100*x/sum(x), 1)
+pie(x,piepercent,main="Мужчины второй группы", col=c("red", "blue","green"),clockwise=TRUE)
+legend("topright", c("High","Low","Medium"), fill =c("red", "blue","green"))
+x <- table(df$"Activity level (level)"[(df$"Gender"=="2")&(df$"Group"=="1")])
+piepercent <- round(100*x/sum(x), 1)
+pie(x,piepercent,main="Женщины первой группы", col=c("red", "blue","green"),clockwise=TRUE)
+legend("topright", c("High","Low","Medium"), fill =c("red", "blue","green"))
+x <- table(df$"Activity level (level)"[(df$"Gender"=="2")&(df$"Group"=="1")])
+piepercent <- round(100*x/sum(x), 1)
+pie(x,piepercent,main="Женщины второй группы", col=c("red", "blue","green"),clockwise=TRUE)
+legend("topright", c("High","Low","Medium"), fill =c("red", "blue","green"))
 
 #6.4
 dev.new()
@@ -52,3 +64,21 @@ barplot(table(df$"Activity level (score)"[(df$"Gender"=="1")&(df$"Group"=="1")])
 barplot(table(df$"Activity level (score)"[(df$"Gender"=="1")&(df$"Group"=="2")]),col=c("blue"),main="Мужчины второй группы",xlab="Степень активности", ylab="Количество наблюдений")
 barplot(table(df$"Activity level (score)"[(df$"Gender"=="2")&(df$"Group"=="1")]),col=c("green"),main="Женщины первой группы",xlab="Степень активности", ylab="Количество наблюдений")
 barplot(table(df$"Activity level (score)"[(df$"Gender"=="2")&(df$"Group"=="2")]),col=c("yellow"),main="Женщины второй группы",xlab="Степень активности", ylab="Количество наблюдений")
+
+#6.5
+dev.new()
+boxplot(df$"Average income" ~ df$"Gender", xlab = "Пол", ylab = "Средний доход", data = df)
+
+#6.6
+dev.new()
+par(mfrow = c(2, 3))
+hist(df$"Age", freq=FALSE, breaks=12,xlabel="Возраст",main="Возраст")
+hist(df$"Work experience", freq=FALSE, breaks=12,xlabel="Стаж работы",main="Стаж работы")
+hist(df$"Average income", freq=FALSE, breaks=12,xlabel="Средний доход",main="Средний доход")
+hist(df$"Average number of pages", freq=FALSE, breaks=12,xlabel="Среднее количество просматриваемых страниц в месяц",main="Среднее количество просматриваемых страниц в месяц")
+hist(df$"Activity level (score)", freq=FALSE, breaks=12,xlabel="Степень активности",main="Степень активности")
+
+#6.7
+dev.new()
+pairs(~df$"Age"+df$"Work experience"+df$"Average income"+df$"Average number of pages"+df$"Activity level (score)",data=df,main="Матричный график", col="red")
+
