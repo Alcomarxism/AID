@@ -94,33 +94,41 @@ pairs(~df$"Age"+df$"Work experience"+df$"Average income"+df$"Average number of p
 #7
 #7.1
 print(pearson.test(df$"Average income"))
-print(ad.test(df$"Average income"))
+print(cvm.test(df$"Average income"))
 print(shapiro.test(df$"Average income"))
 plotNormalHistogram(df$"Average income", xlab="Средний доход", ylab="Количество наблюдений", length = 1000, breaks = seq(min(df$"Average income"), max(df$"Average income"),length.out = 7))
 
 #7.2
-M <- df[,unlist(lapply(df, is.numeric))]
-N1<-cor(M, use="pairwise.complete.obs",method="pearson")
-N2<-cor(M, use="pairwise.complete.obs",method="spearman")
-N3<-cor(M, use="pairwise.complete.obs",method="kendall")
-View(N1)
-View(N2)
-View(N3)
+df_group1 <- df[df$"Group" == "1", sapply(df, is.numeric)]
+df_group2 <- df[df$"Group" == "2", sapply(df, is.numeric)]
+g1_pearson  <- cor(df_group1, use = "pairwise.complete.obs", method = "pearson")
+g1_spearman <- cor(df_group1, use = "pairwise.complete.obs", method = "spearman")
+g1_kendall  <- cor(df_group1, use = "pairwise.complete.obs", method = "kendall")
+g2_pearson  <- cor(df_group2, use = "pairwise.complete.obs", method = "pearson")
+g2_spearman <- cor(df_group2, use = "pairwise.complete.obs", method = "spearman")
+g2_kendall  <- cor(df_group2, use = "pairwise.complete.obs", method = "kendall")
+View(g1_pearson, title = "Группа 1 - Пирсон")
+View(g1_spearman, title = "Группа 1 - Спирмен")
+View(g1_kendall, title = "Группа 1 - Кендалл")
+View(g2_pearson, title = "Группа 2 - Пирсон")
+View(g2_spearman, title = "Группа 2 - Спирмен")
+View(g2_kendall, title = "Группа 2 - Кендалл")
 
 #7.3
 print(cor.test(df$"Work experience",df$"Average number of pages", method="pearson"))
 
 #7.4
-C1<-pcor(M)
-View(C1$estimate)
-View(C1$p.value)
-C2<-pcor(M, method="spearman")
-C3<-pcor(M, method="kendall")
+C1_g1<-pcor(df_group1,method="pearson")
+C1_g2<-pcor(df_group2,method="pearson")
+View(C1_g1$estimate)
+View(C1_g2$estimate)
+View(C1_g1$p.value)
+View(C1_g2$p.value)
 
 #7.5
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD",
 "#4477AA"))
-corrplot(N1, method="color", col=NULL,type="upper", order="hclust",
+corrplot(cor(df[, sapply(df, is.numeric)], method = "pearson"), method="color", col=NULL,type="upper", order="hclust",
 addCoef.col = "black", tl.col="black", tl.srt=45,
 sig.level = 0.01, insig = "blank",
 diag=FALSE
