@@ -24,8 +24,9 @@ legend("topleft", legend = c("Исходный ряд", "Модель"), col = c
 
 #3.2
 df_seasonal <- na.omit(data.frame(y = as.numeric(tsDataComponents$seasonal),t = 1:length(tsDataComponents$seasonal)))
-fit2 <- nls(y ~ c*sin(d+f*t), data=df_seasonal,start=c(c=1,d=1,f=1))
+fit2 <- nls(y ~ c*sin(d+f*t), data=df_seasonal,start=c(c=10,d=0,f=0.523))
+
 windows()
 plot(tsData, main = "Модель 2", col = "black")
-lines(time(tsData)[df_trend$t], fitted(fit1)+fitted(fit2), col = "red", lwd = 2)
+lines(time(tsData)[df_trend$t], fitted(fit1)+fitted(fit2)[df_trend$t], col = "red", lwd = 2)
 legend("topleft", legend = c("Исходный ряд", "Модель"), col = c("black", "red"))
