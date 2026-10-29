@@ -68,3 +68,35 @@ windows()
 tsAcf2 <- acf(residuals(fit2), plot=TRUE)
 windows()
 tsPacf2 <- pacf(residuals(fit2), plot = TRUE)
+
+
+#3.3
+residuals_model2 <- (tsData[df_trend$t] - (fitted(fit1) + fitted(fit2)[df_trend$t]))
+p_order <- 3 
+fit3 <- arima(residuals_model2, order = c(p_order, 0, 0))
+ar_fitted_values <- residuals_model2 - residuals(fit3)
+model3_fitted <- fitted(fit1) + fitted(fit2)[df_trend$t] + ar_fitted_values
+
+acc3 <- accuracy(model3_fitted, tsData[df_trend$t])
+errors3 <- tsData[df_trend$t] - model3_fitted
+cat("\nModel 3\n")
+cat("Min error",min(errors3),"\n")
+cat("Max error",max(errors3),"\n")
+cat("Mean error",mean(errors3),"\n")
+cat("Std. dev.", sd(errors3), "\n")
+cat("MAE", acc3[1, "MAE"], "\n")
+cat("MPE", acc3[1, "MPE"], "\n")
+cat("MAPE", acc3[1, "MAPE"], "\n")
+cat("RMSE", acc3[1, "RMSE"], "\n")
+
+windows()
+plot(tsData, main = "Модель 3", col = "black")
+lines(time(tsData)[df_trend$t], model3_fitted, col = "red")
+legend("topleft", legend = c("Исходный ряд", "Модель"), col = c("black", "red"))
+
+windows()
+sp3 <- spec.pgram(residuals(fit3), plot = TRUE)
+windows()
+tsAcf3 <- acf(residuals(fit3), plot = TRUE)
+windows()
+tsPacf3 <- pacf(residuals(fit3), plot = TRUE)
