@@ -12,103 +12,100 @@ tsDataComponents <- decompose(tsData)
 windows()
 plot(tsDataComponents)
 
-
+t <- 1:length(tsData)
 #3.1
-df_trend <- na.omit(data.frame(y = as.numeric(tsDataComponents$trend),t = 1:length(tsDataComponents$trend)))
+fit1 <- nls(y ~ k/(1+a*exp(-b*t)), data=na.omit(data.frame(y = as.numeric(tsDataComponents$trend),t = 1:length(tsDataComponents$trend))),start=c(k=1450,a=50,b=0.05))
+k <- coef(fit1)["k"]
+a <- coef(fit1)["a"]
+b <- coef(fit1)["b"]
+tsModel1 <- ts(k / (1 + a * exp(-b * t)), start = start(tsData), frequency = frequency(tsData))
 
-fit1 <- nls(y ~ k/(1+a*exp(-b*t)), data=df_trend,start=c(k=1450,a=50,b=0.05))
 windows()
-plot(tsData, main = "Модель 1", col = "black")
-lines(time(tsData)[df_trend$t], fitted(fit1), col = "red")
+plot.ts(tsData, main = "Модель 1", col = "black")
+lines(tsModel1, col = "red")
 legend("topleft", legend = c("Исходный ряд", "Модель"), col = c("black", "red"))
 
-errors1 <- tsData[df_trend$t] - fitted(fit1)
-acc1 <- accuracy(fitted(fit1),tsData[df_trend$t])
+residuals1 <- tsData - tsModel1
+acc1 <- accuracy(tsModel1,tsData)
 cat("\nModel 1\n")
-cat("Min error",min(errors1),"\n")
-cat("Max error",max(errors1),"\n")
-cat("Mean error",mean(errors1),"\n")
-cat("Std. dev.", sd(errors1), "\n")
+cat("k: ",k," a: ",a," b: ",b,":\n")
+cat("Min error",min(residuals1),"\n")
+cat("Max error",max(residuals1),"\n")
+cat("Mean error",mean(residuals1),"\n")
+cat("Std. dev.", sd(residuals1), "\n")
 cat("MAE", acc1[1, "MAE"], "\n")
 cat("MPE", acc1[1, "MPE"], "\n")
 cat("MAPE", acc1[1, "MAPE"], "\n")
 cat("RMSE", acc1[1, "RMSE"], "\n")
-y_fact_1 <- tsData[df_trend$t]
-y_fit_1 <- fitted(fit1)
-RSS_1 <- sum((y_fact_1 - y_fit_1)^2) 
-TSS_1 <- sum((y_fact_1 - mean(y_fact_1))^2) 
+RSS_1 <- sum((tsData - tsModel1)^2) 
+TSS_1 <- sum((tsData - mean(tsData))^2) 
 R2_1 <- 1 - (RSS_1 / TSS_1)
-cat("Коэффициент детерминации (R^2) для Модели 1:", R2_1, "\n")
+cat("Коэффициент детерминации (R^2):", R2_1, "\n")
 
 windows()
-sp1 <- spec.pgram(residuals(fit1),detrend = FALSE, log = "no", fast = FALSE, pad =FALSE, taper = 0, plot = TRUE)
+sp1 <- spec.pgram(residuals1,detrend = FALSE, log = "no", fast = FALSE, pad =FALSE, taper = 0, plot = TRUE)
 windows()
-tsAcf1 <- acf(residuals(fit1), lag.max = 15, plot=TRUE, na.action = na.contiguous,demean = TRUE)
+tsAcf1 <- acf(residuals1, lag.max = 15, plot=TRUE, na.action = na.contiguous,demean = TRUE)
 windows()
-tsPacf1 <- pacf(residuals(fit1),lag.max = 15, plot = TRUE)
+tsPacf1 <- pacf(residuals1,lag.max = 15, plot = TRUE)
 
 #3.2
-df_seasonal <- na.omit(data.frame(y = as.numeric(tsDataComponents$seasonal),t = 1:length(tsDataComponents$seasonal)))
-fit2 <- nls(y ~ c*sin(d+f*t), data=df_seasonal,start=c(c=10,d=0,f=0.523))
+fit2 <- nls(y ~ A*sin((2 * pi / 12)*t)+B*cos((2 * pi / 12)*t), data=na.omit(data.frame(y = as.numeric(tsDataComponents$seasonal),t = 1:length(tsDataComponents$seasonal))),start=c(A=1,B=1))
+A <- coef(fit2)["A"]
+B <- coef(fit2)["B"]
+tsModel2 <- ts(A*sin((2 * pi / 12)*t)+B*cos((2 * pi / 12)*t), start = start(tsData), frequency = frequency(tsData))+tsModel1
 
 windows()
-plot(tsData, main = "Модель 2", col = "black")
-lines(time(tsData)[df_trend$t], fitted(fit1)+fitted(fit2)[df_trend$t], col = "red")
+plot.ts(tsData, main = "Модель 2", col = "black")
+lines(tsModel2, col = "red")
 legend("topleft", legend = c("Исходный ряд", "Модель"), col = c("black", "red"))
 
-errors2 <- fitted(fit1)+fitted(fit2)[df_trend$t]-tsData[df_trend$t]
-acc2 <- accuracy(fitted(fit1)+fitted(fit2)[df_trend$t],tsData[df_trend$t])
+residuals2 <- tsData - tsModel2
+acc2 <- accuracy(tsModel2,tsData)
 cat("\nModel 2\n")
-cat("Min error",min(errors2),"\n")
-cat("Max error",max(errors2),"\n")
-cat("Mean error",mean(errors2),"\n")
-cat("Std. dev.", sd(errors2), "\n")
+cat("A: ",A," B: ",B,"\n")
+cat("Min error",min(residuals2),"\n")
+cat("Max error",max(residuals2),"\n")
+cat("Mean error",mean(residuals2),"\n")
+cat("Std. dev.", sd(residuals2), "\n")
 cat("MAE", acc2[1, "MAE"], "\n")
 cat("MPE", acc2[1, "MPE"], "\n")
 cat("MAPE", acc2[1, "MAPE"], "\n")
 cat("RMSE", acc2[1, "RMSE"], "\n")
-y_fact_2 <- tsData[df_trend$t]
-y_fit_2 <- fitted(fit1) + fitted(fit2)[df_trend$t]
-RSS_2 <- sum((y_fact_2 - y_fit_2)^2)
-TSS_2 <- sum((y_fact_2 - mean(y_fact_2))^2)
-R2_2 <- 1 - (RSS_2 / TSS_2)
-cat("Коэффициент детерминации (R^2):", R2_2, "\n")
+RSS_1 <- sum((tsData - tsModel2)^2) 
+TSS_1 <- sum((tsData - mean(tsData))^2) 
+R2_1 <- 1 - (RSS_1 / TSS_1)
+cat("Коэффициент детерминации (R^2):", R2_1, "\n")
 
 windows()
-sp1 <- spec.pgram(residuals(fit2),detrend = FALSE, log = "no", fast = FALSE, pad =FALSE, taper = 0, plot = TRUE)
+sp2 <- spec.pgram(residuals2,detrend = FALSE, log = "no", fast = FALSE, pad =FALSE, taper = 0, plot = TRUE)
 windows()
-tsAcf1 <- acf(residuals(fit2), lag.max = 15, plot=TRUE, na.action = na.contiguous,demean = TRUE)
+tsAcf2 <- acf(residuals2, lag.max = 15, plot=TRUE, na.action = na.contiguous,demean = TRUE)
 windows()
-tsPacf1 <- pacf(residuals(fit2),lag.max = 15, plot = TRUE)
+tsPacf2 <- pacf(residuals2,lag.max = 15, plot = TRUE)
 
-
-
-#Прогноз на 2026
+# Прогноз на 2026 год 
 h <- 3
 n_total <- length(tsData)
 t_future <- (n_total + 1):(n_total + h)
-k_val <- coef(fit1)["k"]
-a_val <- coef(fit1)["a"]
-b_val <- coef(fit1)["b"]
-trend_forecast <- k_val / (1 + a_val * exp(-b_val * t_future))
 
-c_val <- coef(fit2)["c"]
-d_val <- coef(fit2)["d"]
-f_val <- coef(fit2)["f"]
-seasonal_forecast <- c_val * sin(d_val + f_val * t_future)
-model3_forecast_values <- trend_forecast + seasonal_forecast
-print(as.numeric(model3_forecast_values))
+trend_forecast <- k / (1 + a * exp(-b * t_future))
+seasonal_forecast <- A * sin((2 * pi / 12) * t_future) + B * cos((2 * pi / 12) * t_future)
+
+model2_forecast_values <- trend_forecast + seasonal_forecast
+next_start <- time(tsData)[n_total] + 1/12
+tsForecast2 <- ts(model2_forecast_values, start = next_start, frequency = 12)
 
 windows()
-plot(window(tsData, start=c(2024, 1)), main = "Прогноз на 2026", col = "black", 
-     xlim = c(2024, 2026.3), ylim = range(tsData, model3_forecast_values), ylab = "Value", xlab = "Year")
+ts_recent <- window(tsData, start = c(2024, 1))
+
+plot(ts_recent,  main = "Прогноз на 2026 год",  col = "black",  lwd = 1.5, xlim = c(2024, 2027),  ylim = range(ts_recent, tsForecast2),  ylab = "Значение",  xlab = "Год")
 
 last_time <- tail(time(tsData), 1)
 last_val <- tail(tsData, 1)
-forecast_times <- seq(2026, by = 1/12, length.out = h)
-full_times <- c(last_time, forecast_times)
-full_values <- c(last_val, as.numeric(model3_forecast_values))
+full_times <- c(last_time, time(tsForecast2))
+full_values <- c(last_val, as.numeric(tsForecast2))
 
 lines(full_times, full_values, col = "red", lwd = 2, type = "o", pch = 16)
-legend("topleft", legend = c("Actual", "Forecast"), col = c("black", "red"), lty = 1, pch = c(1, 16))
+legend("topleft", legend = c("Факт (2024–2025)", "Прогноз (2026)"), col = c("black", "red"), lty = 1, pch = c(NA, 16))
 
